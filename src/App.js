@@ -1,25 +1,34 @@
-import logo from './logo.svg';
 import './App.css';
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import Weather from './Components/Weather'
 
-function App() {
+export default function App() {
+  const [weather, setWeather] = useState([]);
+
+  useEffect(() => {
+    const getWeatherData = () => {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const long = position.coords.longitude;
+
+        const result = await axios.get(`${process.env.REACT_APP_API_URL}/weather/?lat=${lat}&lon=${long}&units=metric&APPID=${process.env.REACT_APP_API_KEY}`)
+        setWeather(result.data);
+        console.log(result.data);
+      });
+    }
+
+    getWeatherData();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {(typeof weather.main != 'undefined') ? (
+        <Weather weatherData={weather}/>
+      ): (
+        <div></div>
+      )}
+      
     </div>
   );
 }
-
-export default App;
